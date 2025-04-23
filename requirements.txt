@@ -2,10 +2,9 @@
 uvicorn==0.23.2
 python-jose==3.3.0
 passlib==1.7.4
-pydantic==2.4.2
+pydantic
 python-multipart==0.0.6
 python-dotenv==1.0.0
 email-validator==2.0.0
-# Fix pymongo and motor versions to ensure compatibility
 pymongo==4.2.0
 motor==3.1.1
