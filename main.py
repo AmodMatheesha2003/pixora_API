@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from app.auth.routes import auth_router
+from app.nft.routes import nft_router
 from app.user.routes import user_router
 from app.database import init_db, db
 
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(user_router, prefix="/api/user", tags=["Users"])
+app.include_router(nft_router, prefix="/api/nft", tags=["NFTs"])
 
 
 @app.get("/")
