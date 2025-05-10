@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.auth.routes import auth_router
 from app.nft.routes import nft_router
 from app.user.routes import user_router
@@ -8,6 +9,15 @@ from app.database import init_db, db
 
 app = FastAPI(title="pixora API",
               description="Blockchain-based Photos/Digital Art publishing, buying & selling platform")
+
+#CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For development, you can use ["*"] to allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
