@@ -11,7 +11,7 @@ class Database:
 db = Database()
 
 # Initialize database connection right away, not just during startup event
-mongodb_uri = os.getenv("MONGODB_URI", 'mongodb+srv://chalanadevinda:Chalana2003@pixora.hnft1r3.mongodb.net/?retryWrites=true&w=majority&appName=Pixora')
+mongodb_uri = os.getenv("MONGODB_URI")
 db.db_name = os.getenv("DB_NAME", "pixora_db")
 db.client = AsyncIOMotorClient(mongodb_uri)
 
