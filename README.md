@@ -63,3 +63,4 @@ project/ │ ├── .env ├── main.py ├── requirements.txt │ ├
 
 1. Clone the repository
 2. Create a virtual environment:
+3. 
