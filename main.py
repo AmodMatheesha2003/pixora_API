@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.admin.routes import admin_router
 from app.auth.routes import auth_router
 from app.nft.routes import nft_router
 from app.user.routes import user_router
@@ -29,6 +31,7 @@ app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(user_router, prefix="/api/user", tags=["Users"])
 app.include_router(nft_router, prefix="/api/nft", tags=["NFTs"])
 
+app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
 
 @app.get("/")
 def read_root():
