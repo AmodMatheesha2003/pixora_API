@@ -34,3 +34,21 @@ def parse_user_from_db(user_data):
         del user_data["password"]
 
     return user_data
+
+
+def verification_request_helper(request) -> dict:
+    """
+    Format verification request data
+    """
+    return {
+        "id": str(request["_id"]),
+        "user_id": request["user_id"],
+        "address": request["address"],
+        "id_front_image": request["id_front_image"],
+        "id_back_image": request["id_back_image"],
+        "about_user_article_link": request["about_user_article_link"],
+        "status": request["status"],
+        "request_date": request["request_date"].strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(request["request_date"], datetime.datetime)
+            else request["request_date"],
+    }

@@ -111,3 +111,20 @@ class UserPrivateProfile(UserPublicProfile):
                 "wallet_address": "0x1234567890abcdef1234567890abcdef12345678"
             }
         }
+
+
+class VerificationRequest(BaseModel):
+    address: str
+    id_front_image: str
+    id_back_image: str
+    about_user_article_link: str
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "address": "123 Main St, City, Country",
+                "id_front_image": "base64_encoded_string...",
+                "id_back_image": "base64_encoded_string...",
+                "about_user_article_link": "https://example.com/about-user"
+            }
+        }
