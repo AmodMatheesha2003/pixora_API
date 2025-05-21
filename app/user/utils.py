@@ -41,7 +41,7 @@ def verification_request_helper(request) -> dict:
     Format verification request data
     """
     return {
-        "id": str(request["_id"]),
+        "verification_id": str(request["_id"]),
         "user_id": request["user_id"],
         "address": request["address"],
         "id_front_image": request["id_front_image"],

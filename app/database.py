@@ -18,6 +18,19 @@ db.client = AsyncIOMotorClient(mongodb_uri)
 async def init_db():
     # Ensure indexes for better query performance and unique constraints
     await db.client[db.db_name]["users"].create_index("email", unique=True)
+
+    # index for VerificationRequests collection
+    # Compound index for user_id and request_date to optimize the query
+    await db.client[db.db_name]["VerificationRequests"].create_index([
+        ("user_id", 1),  # 1 for ascending order
+        ("request_date", -1)  # -1 for descending order
+    ])
+
+    # Add index for status field which will be used in queries
+    await db.client[db.db_name]["VerificationRequests"].create_index("status")
+
+    # Ensure indexes for better query performance and unique constraints
+    await db.client[db.db_name]["users"].create_index("email", unique=True)
     print("Connected to MongoDB!")
 
 async def get_db():

@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status,Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from datetime import datetime
 from app.auth.jwt_handler import get_current_user
+from app.user.models import VerificationRequestResponse, VerificationRequestInput
 from app.user.utils import user_helper
 from app.database import get_db
-from app.user.models import VerificationRequest
 
 user_router = APIRouter()
 
@@ -33,7 +33,7 @@ async def get_user(user_id: str, current_user: dict = Depends(get_current_user))
 
 @user_router.post("/verification-request", response_model=dict)
 async def submit_verification_request(
-        request_data: VerificationRequest = Body(...),
+        request_data: VerificationRequestInput = Body(...),
         current_user: dict = Depends(get_current_user)
 ):
     """
@@ -41,9 +41,22 @@ async def submit_verification_request(
     """
     db = await get_db()
 
+    # Get user ID, checking both possible keys
+    if "_id" in current_user:
+        user_id = str(current_user["_id"])
+    elif "id" in current_user:
+        user_id = current_user["id"]
+    else:
+        # Print available keys for debugging
+        print(f"Available keys in current_user: {current_user.keys()}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not determine user ID"
+        )
+
     # Check if there's a pending verification request
     existing_request = await db["VerificationRequests"].find_one({
-        "user_id": current_user["id"],
+        "user_id": user_id,
         "status": "pending"
     })
 
@@ -55,9 +68,9 @@ async def submit_verification_request(
 
     # Create verification request
     verification_request = {
-        "user_id": current_user["id"],
-        "user_email": current_user["email"],
-        "user_name": f"{current_user['first_name']} {current_user['last_name']}",
+        "user_id": user_id,
+        "user_email": current_user.get("email", ""),
+        "user_name": f"{current_user.get('first_name', '')} {current_user.get('last_name', '')}",
         "address": request_data.address,
         "id_front_image": request_data.id_front_image,
         "id_back_image": request_data.id_back_image,
@@ -75,28 +88,64 @@ async def submit_verification_request(
     }
 
 
-@user_router.get("/verification-requests", response_model=list)
+@user_router.get("/verification-requests", response_description="Get all verification requests for the current user")
 async def get_verification_requests(current_user: dict = Depends(get_current_user)):
     """
-    Get all verification requests for a user
+    Get all verification requests for the current user
     """
+    # Get the database connection
     db = await get_db()
 
-    # Get all verification requests for the user
-    cursor = db["VerificationRequests"].find(
-        {"user_id": current_user["id"]}
-    ).sort("request_date", -1)  # Sort by request_date in descending order
+    # Get user ID from the current user (as string)
+    user_id = current_user["id"]
+
+    print(f"Current user: {current_user}")
+    print(f"Looking for verification requests with user_id: {user_id}")
+
+    # First check if there are ANY verification requests in the collection
+    all_requests_count = await db["VerificationRequests"].count_documents({})
+    print(f"Total documents in VerificationRequests collection: {all_requests_count}")
+
+    # Try to find ALL verification requests first
+    all_requests = []
+    async for doc in db["VerificationRequests"].find().limit(5):
+        print(f"Sample document: {doc}")
+        if "user_id" in doc:
+            print(f"Sample user_id: {doc['user_id']} (type: {type(doc['user_id']).__name__})")
+        all_requests.append(doc)
+
+    print(f"Sample of {len(all_requests)} documents from collection")
+
+    # Now try different ways to find documents for this specific user
+
+    # 1. Try exact match
+    cursor = db["VerificationRequests"].find({"user_id": user_id})
 
     verification_requests = []
     async for request in cursor:
-        # Convert ObjectId to string
-        request["id"] = str(request["_id"])
-        del request["_id"]
+        # Keep a copy of the original document for inspection
+        request_copy = dict(request)
 
-        # Format request_date
-        if "request_date" in request:
-            request["request_date"] = request["request_date"].strftime("%Y-%m-%d %H:%M:%S")
+        # Add a string id for API response
+        request_copy["id"] = str(request["_id"])
 
-        verification_requests.append(request)
+        # Format date if needed
+        if "request_date" in request_copy and isinstance(request_copy["request_date"], datetime):
+            request_copy["request_date"] = request_copy["request_date"].strftime("%Y-%m-%d %H:%M:%S")
 
+        verification_requests.append(request_copy)
+
+    print(f"Found {len(verification_requests)} verification requests for user_id: {user_id}")
+
+    # If nothing found, try a more flexible approach
+    if not verification_requests and all_requests:
+        print("Trying more flexible match...")
+        # This is a diagnostic step to see if we can find the user's requests with different approaches
+        for doc in all_requests:
+            if "user_id" in doc and doc["user_id"] == user_id:
+                print(f"Found match with exact string comparison!")
+            elif "user_id" in doc and str(doc["user_id"]) == user_id:
+                print(f"Found match after converting to string!")
+
+    # Return whatever we found
     return verification_requests
