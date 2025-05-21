@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Form
+from fastapi import APIRouter, Form, Query
 from fastapi.responses import JSONResponse
 
 from .models import nft_collection
 from .utils import upload_image_to_api, get_user_info_from_api
+
+from typing import Optional, List
 
 nft_router = APIRouter()
 
@@ -81,3 +83,30 @@ async def frontend_upload(
             "modified_count": update_result.modified_count
         }
     }
+
+@nft_router.get("/all", summary="Get all NFTs, optionally filter by art_type")
+async def get_all_nfts(
+    art_type: Optional[str] = Query(
+        None,
+        description="NFT art type: digital_art or photography",
+        regex="^(digital_art|photography)$"
+    )
+):
+    query = {}
+    if art_type:
+        query["art_type"] = art_type
+
+    projection = {
+        "_id": 1,
+        "name": 1,
+        "description": 1,
+        "nft_owner": 1,
+        "price": 1
+    }
+
+    nfts = []
+    async for nft in nft_collection.find(query, projection):
+        nft["_id"] = str(nft["_id"])
+        nfts.append(nft)
+
+    return {"count": len(nfts), "nfts": nfts}
