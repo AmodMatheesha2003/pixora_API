@@ -99,6 +99,7 @@ async def get_all_nfts(
     projection = {
         "_id": 1,
         "name": 1,
+        "imageBase64": 1,
         "description": 1,
         "nft_owner": 1,
         "price": 1
