@@ -1,8 +1,9 @@
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from datetime import datetime
 from app.auth.jwt_handler import get_current_user
-from app.user.models import VerificationRequestResponse, VerificationRequestInput
-from app.user.utils import user_helper
+from app.user.models import VerificationRequestInput, UpdateUserProfile
+from app.user.utils import user_helper, user_details_helper
 from app.database import get_db
 
 user_router = APIRouter()
@@ -149,3 +150,50 @@ async def get_verification_requests(current_user: dict = Depends(get_current_use
 
     # Return whatever we found
     return verification_requests
+
+
+@user_router.get("/users/me", response_model=dict)
+async def get_logged_in_user_details(current_user: dict = Depends(get_current_user)):
+    """
+    Fetch the logged-in user's details
+    """
+    return user_details_helper(current_user)
+
+@user_router.put("/me/profile", response_model=dict)
+async def update_user_profile(
+    update_data: UpdateUserProfile = Body(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Update the first name, last name, and bio of the currently authenticated user
+    """
+    db = await get_db()
+
+    # Update the user's first_name, last_name, and bio in the database
+    result = await db["users"].update_one(
+        {"_id": current_user["id"]},  # Filter by user ID
+        {
+            "$set": {
+                "first_name": update_data.first_name,
+                "last_name": update_data.last_name,
+                "contact": update_data.contact,
+                "profile_image": update_data.profile_image,
+                "bio": update_data.bio,
+                "facebook": update_data.facebook,
+                "instagram": update_data.instagram,
+                "twitter": update_data.twitter,
+                "linkedin": update_data.linkedin
+            }
+        }
+    )
+
+    if result.modified_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to update the user profile"
+        )
+
+    # Return the updated fields
+    return {
+        "message": "Profile updated successfully"
+    }

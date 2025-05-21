@@ -52,3 +52,28 @@ def verification_request_helper(request) -> dict:
             if isinstance(request["request_date"], datetime.datetime)
             else request["request_date"],
     }
+
+
+
+def user_details_helper(user) -> dict:
+    """
+    Format user details for response
+    """
+    return {
+        "id": str(user["id"]),
+        "first_name": user.get("first_name", ""),
+        "last_name": user.get("last_name", ""),
+        "email": user.get("email", ""),
+        "contact": user.get("contact", ""),
+        "birthday": user.get("birthday", ""),
+        "profile_image": user.get("profile_image", ""),
+        "user_type": user.get("user_type", ""),
+        "bio": user.get("bio", ""),
+        "facebook": user.get("facebook", ""),
+        "instagram": user.get("instagram", ""),
+        "twitter": user.get("twitter", ""),
+        "linkedin": user.get("linkedin", ""),
+        "verification_status": user.get("verification_status", ""),
+        "created_at": user.get("created_at", ""),
+        "updated_at": user.get("updated_at", "")
+    }
