@@ -178,6 +178,7 @@ async def update_user_profile(
                 "last_name": update_data.last_name,
                 "contact": update_data.contact,
                 "profile_image": update_data.profile_image,
+                "cover_image": update_data.cover_image,
                 "bio": update_data.bio,
                 "facebook": update_data.facebook,
                 "instagram": update_data.instagram,

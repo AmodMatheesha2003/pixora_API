@@ -67,6 +67,7 @@ def user_details_helper(user) -> dict:
         "contact": user.get("contact", ""),
         "birthday": user.get("birthday", ""),
         "profile_image": user.get("profile_image", ""),
+        "cover_image": user.get("cover_image", ""),
         "user_type": user.get("user_type", ""),
         "bio": user.get("bio", ""),
         "facebook": user.get("facebook", ""),

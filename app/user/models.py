@@ -200,6 +200,7 @@ class UserDetails(BaseModel):
     contact: str
     birthday: date
     profile_image: str
+    cover_image: str
     user_type: str
     bio: str
     facebook: str
@@ -220,6 +221,7 @@ class UserDetails(BaseModel):
                 "contact": "+1234567890",
                 "birthday": "1990-01-01",
                 "profile_image": "/9j/4AAQSkZJRgABAQAAAQABAAD/...",
+                "cover_image": "/9j/4AAQSkZJRgABAQAAAQABAAD/...",
                 "user_type": "artist",
                 "bio": "Digital artist specializing in abstract art",
                 "facebook": "www.facebook.com/johndoe",
@@ -238,6 +240,7 @@ class UpdateUserProfile(BaseModel):
     last_name: str
     contact: str
     profile_image: str
+    cover_image: str
     bio: str
     facebook: str
     instagram: str
@@ -251,6 +254,7 @@ class UpdateUserProfile(BaseModel):
                 "last_name": "Doe",
                 "contact": "+1234567890",
                 "profile_image": "/9j/4AAQSkZJRgABAQAAAQABAAD/...",
+                "cover_image": "/9j/4AAQSkZJRgABAQAAAQABAAD/...",
                 "bio": "Digital artist specializing in abstract art",
                 "facebook": "www.facebook.com/johndoe",
                 "instagram": "www.instagram.com/johndoe",
